@@ -1,4 +1,3 @@
-from unicodedata import category
 import xml.sax
 import time
 import re
