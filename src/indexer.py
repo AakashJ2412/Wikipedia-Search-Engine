@@ -5,6 +5,8 @@ import time
 import nltk
 nltk.download('stopwords')
 from contentHandler import WikiHandler
+from merger import Merger
+from utils import *
 
 if __name__ == "__main__":
     startTime = time.time()
@@ -12,19 +14,27 @@ if __name__ == "__main__":
         print("Invalid number of arguments")
         exit()
     dumpFile = sys.argv[1]
-    indexFile = sys.argv[2]
+    indexPath = sys.argv[2]
     statFile = sys.argv[3]
 
     if not os.path.exists(dumpFile):
         print("Invalid dump file provided")
         exit()
+    if not os.path.isdir(indexPath):
+        os.mkdir(indexPath)
     parser = xml.sax.make_parser()
     parser.setFeature(xml.sax.handler.feature_namespaces, 0)
-    dataHandler = WikiHandler()
+    print("Parsing dump file...")
+    dataHandler = WikiHandler(indexPath)
     parser.setContentHandler(dataHandler)
     parsedData = parser.parse(dumpFile)
-    dataHandler.writeInvIndex(indexFile)
-    firstParam, secondParam = dataHandler.getParams()
+    indexParams = []
+    with open(f"{indexPath}/index_stats.txt", "r") as f:
+        indexParams = (f.read()).split(' ')
+        indexParams = [int(a) for a in indexParams]
+    print("Merging index files...")
+    mergeHandler = Merger(indexPath, indexParams[0])
+    mergeHandler.merge_index()
     with open(statFile,"w") as f:
-        f.write(f"{firstParam} {secondParam}")
+        f.write(f"{indexParams[0]} {indexParams[1]}")
     print(f"Finish Time: {time.time() - startTime}")

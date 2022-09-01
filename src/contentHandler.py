@@ -9,7 +9,7 @@ from collections import Counter, defaultdict
 from utils import *
 
 class WikiHandler( xml.sax.ContentHandler ):
-    def __init__(self):
+    def __init__(self, indexDirectory):
         self.pageTitles = []
         self.title = []
         self.pageData = []
@@ -20,7 +20,10 @@ class WikiHandler( xml.sax.ContentHandler ):
         self.externlinks = []
         self.invertedIndex = defaultdict(list)
         self.pageCount = 0
+        self.indexCount = 0
+        self.pageBreakValue = maxPageCount
         self.totalTokens = 0
+        self.indexDirectory = indexDirectory
         self.CurrentData = ""
         self.stopwords = set(stopwords.words('english'))
         self.extrastops = set(["ref", "reflist", "caption", "infobox", "wiki", "image", "url", "http", "https", "category", "html", "com", "links", "other", "wikiproject"])
@@ -31,7 +34,7 @@ class WikiHandler( xml.sax.ContentHandler ):
         for elem in list(pageDictionary):
             if len(elem) > 15:
                 pageDictionary.remove(elem)
-            elif len(elem) < 2:
+            elif len(elem) <= 2:
                 pageDictionary.remove(elem)
         invIndex = defaultdict.fromkeys(pageDictionary,'')
         titleCounter = Counter(self.title)
@@ -70,6 +73,16 @@ class WikiHandler( xml.sax.ContentHandler ):
             for word, values in self.invertedIndex.items():
                 fileOut.write(f"{word}:{'|'.join(values)};")
             fileOut.write(f"={'|'.join(self.pageTitles)}=")
+    
+    def writePages(self, fileId):
+        with open(f"{self.indexDirectory}/index_0_{fileId}.txt","w") as fileOut:
+            for word in sorted(self.invertedIndex.items(), key = lambda i: i[0]):
+                fileOut.write(f"{word[0]}:{'|'.join(word[1])}\n")
+        with open(f"{self.indexDirectory}/title_{fileId}.txt","w") as fileOut:
+            fileOut.write(f"{'|'.join(self.pageTitles)}")
+        self.invertedIndex.clear()
+        self.pageTitles.clear()
+
 
     def getParams(self):
         return self.totalTokens, len(self.invertedIndex.keys())
@@ -93,11 +106,17 @@ class WikiHandler( xml.sax.ContentHandler ):
     def startElement(self, tag, attributes):
         self.CurrentData = tag
 
-
     # Call when an elements ends
     def endElement(self, tag):
+        if (tag == 'mediawiki'):
+            self.indexCount += 1
+            self.writePages(self.indexCount)
+            with open(f"{self.indexDirectory}/index_stats.txt", "w") as f:
+                f.write(f"{self.indexCount} {str(self.pageCount)} {str(self.totalTokens)}")
         if (tag == 'page'):      
-            self.pageTitles.append((''.join(ch if ch.isalnum() else ' ' for ch in self.title[0])).lower())
+            self.pageTitles.append(self.title[0].encode("utf-8").hex())
+            # Use bytes.fromhex(hex).decode('utf-8') to get the original string
+            #self.pageTitles.append((''.join(ch if ch.isalnum() else ' ' for ch in self.title[0])).lower())
             self.title = self.cleanText(lowerString(joinArray(self.title)))
             #print(self.pageData)
             if(len(self.pageData) > 0):
@@ -137,7 +156,7 @@ class WikiHandler( xml.sax.ContentHandler ):
                         if bracketCounter == 0:
                             bodyId = i
                             break
-                    self.infobox = self.cleanText(self.pageData[infoboxId:bodyId])
+                self.infobox = self.cleanText(self.pageData[infoboxId:bodyId])
                 self.body = self.cleanText(self.pageData[bodyId: refId])
                 self.category = self.cleanText(joinArray(re.findall(r'\[\[[\s]*category:.*\]\]',self.pageData[refId:])))
                 self.references = self.cleanText(self.pageData[refId:externId])
@@ -153,8 +172,10 @@ class WikiHandler( xml.sax.ContentHandler ):
                 self.category = []
                 self.references = []
                 self.externlinks = []
-                if(self.pageCount % 10000 == 0):
+                if(self.pageCount % self.pageBreakValue == 0):
+                    self.indexCount += 1
                     print(f"For files: {self.pageCount} - {time.time() - startTime}")
+                    self.writePages(self.indexCount)
 
     # Call when a character is read
     def characters(self, content):

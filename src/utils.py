@@ -10,3 +10,4 @@ def updateString(str, id, ch):
     return str[:id] + ch + str[id + 1:]
 
 startTime = time.time()
+maxPageCount = 50000
