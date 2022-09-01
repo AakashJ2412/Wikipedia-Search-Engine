@@ -10,12 +10,11 @@ from utils import *
 
 if __name__ == "__main__":
     startTime = time.time()
-    if(len(sys.argv) != 4):
+    if(len(sys.argv) != 3):
         print("Invalid number of arguments")
         exit()
     dumpFile = sys.argv[1]
     indexPath = sys.argv[2]
-    statFile = sys.argv[3]
 
     if not os.path.exists(dumpFile):
         print("Invalid dump file provided")
@@ -29,12 +28,10 @@ if __name__ == "__main__":
     parser.setContentHandler(dataHandler)
     parsedData = parser.parse(dumpFile)
     indexParams = []
-    with open(f"{indexPath}/index_stats.txt", "r") as f:
+    with open(f"stats.txt", "r") as f:
         indexParams = (f.read()).split(' ')
         indexParams = [int(a) for a in indexParams]
     print("Merging index files...")
     mergeHandler = Merger(indexPath, indexParams[0])
     mergeHandler.merge_index()
-    with open(statFile,"w") as f:
-        f.write(f"{indexParams[0]} {indexParams[1]}")
     print(f"Finish Time: {time.time() - startTime}")

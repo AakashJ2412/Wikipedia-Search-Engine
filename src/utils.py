@@ -11,3 +11,4 @@ def updateString(str, id, ch):
 
 startTime = time.time()
 maxPageCount = 50000
+maxIndexCount = 100000

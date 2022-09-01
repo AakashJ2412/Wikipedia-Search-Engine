@@ -69,13 +69,18 @@ class Merger:
         indexCounter,lineCounter  = 0,0
         wordManager = open(f'{self.indexDirectory}/word_manager.txt', "w")
         indexPointer = open(f'{self.indexDirectory}/index_{indexCounter}.txt', 'w')
+        indexTokens = set()
         while masterLine:
             indexPointer.write(masterLine)
+            indexTokens.add(masterLine.split(":")[0])
             lineCounter += 1
-            if lineCounter == maxPageCount:
+            if lineCounter == maxIndexCount:
                 wordManager.write(f"{masterLine.split(':')[0]}|")
                 indexPointer.close()
                 indexCounter += 1
                 indexPointer = open(f'{self.indexDirectory}/index_{indexCounter}.txt', 'w')
                 lineCounter = 0
             masterLine = masterPointer.readline()
+        with open("stats.txt","w") as statsOut:
+            indexSize = os.path.getsize(f'{self.indexDirectory}/index_{iterationCounter}_1.txt')
+            statsOut.write(f"{round(indexSize/1048576,2)}\n{indexCounter}\n{len(indexTokens)}")
