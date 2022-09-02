@@ -83,4 +83,4 @@ class Merger:
             masterLine = masterPointer.readline()
         with open("stats.txt","w") as statsOut:
             indexSize = os.path.getsize(f'{self.indexDirectory}/index_{iterationCounter}_1.txt')
-            statsOut.write(f"{round(indexSize/1048576,2)}\n{indexCounter}\n{len(indexTokens)}")
+            statsOut.write(f"{round(indexSize/(1024*1024*1024),2)}\n{indexCounter}\n{len(indexTokens)}")

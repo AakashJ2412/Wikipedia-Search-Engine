@@ -100,7 +100,7 @@ if __name__ == "__main__":
                 # indexFile.close()
                 if len(wordData) == 0:
                     continue
-                print(f"got word with len: {len(wordData)}")
+                # print(f"got word with len: {len(wordData)}")
                 for document in wordData:
                     documentId = ""
                     for ch in document:
@@ -132,8 +132,7 @@ if __name__ == "__main__":
                         else:
                             tfScore = math.log(1 + scoreWeights[scoreKey]*scoreIds[scoreKey])
                         documentScore[documentId] += tfScore*idfScore
-                        #print(f"{key} {scoreIds[key]}")
-                print("got score")
+                        # print(f"{key} {scoreIds[key]}")
         rankList = sorted(documentScore.items(),key=lambda kv: kv[1], reverse=True)
         rankCounter = 0
         outFile = open('queries_op.txt','a')
