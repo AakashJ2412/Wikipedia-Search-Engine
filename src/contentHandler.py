@@ -111,8 +111,8 @@ class WikiHandler( xml.sax.ContentHandler ):
         if (tag == 'mediawiki'):
             self.indexCount += 1
             self.writePages(self.indexCount)
-            with open(f"stats.txt", "w") as f:
-                f.write(f"{self.indexCount} {str(self.pageCount)} {str(self.totalTokens)}")
+            with open(f"{self.indexDirectory}/index_stats.txt","w") as f:
+                f.write(f"{self.indexCount} {str(self.pageCount)} {str(self.totalTokens)} {str(maxPageCount)}")
         if (tag == 'page'):      
             self.pageTitles.append(self.title[0].encode("utf-8").hex())
             # Use bytes.fromhex(hex).decode('utf-8') to get the original string

@@ -28,7 +28,7 @@ if __name__ == "__main__":
     parser.setContentHandler(dataHandler)
     parsedData = parser.parse(dumpFile)
     indexParams = []
-    with open(f"stats.txt", "r") as f:
+    with open(f"{indexPath}/index_stats.txt", "r") as f:
         indexParams = (f.read()).split(' ')
         indexParams = [int(a) for a in indexParams]
     print("Merging index files...")
