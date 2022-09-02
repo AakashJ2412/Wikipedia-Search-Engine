@@ -61,7 +61,7 @@ class WikiHandler( xml.sax.ContentHandler ):
             if(r):
                 indString += f"r{r}"
             if(l):
-                indString += f"l{e}"    
+                indString += f"l{l}"    
             else:
                 invIndex[word] = indString
         
