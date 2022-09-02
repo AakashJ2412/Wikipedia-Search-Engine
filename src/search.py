@@ -51,7 +51,7 @@ if __name__ == "__main__":
     queryCounter = 0
     for query in queries:
         queryCounter += 1
-        # print(f"\rParsing Query: {queryCounter}",end='')
+        print(f"\rParsing Query: {queryCounter}",end='')
         startTime = time.time()
         flagIds = {'n':query,'t':-1,'i':-1,'b':-1,'r':-1,'c':-1,'l':-1}
         prevFlag = 'n'
