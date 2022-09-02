@@ -46,7 +46,7 @@ class WikiHandler( xml.sax.ContentHandler ):
         
         for word in list(pageDictionary):
             indString = ""
-            t,i,b,c,r,e = titleCounter.get(word,0),infoboxCounter.get(word,0), bodyCounter.get(word,0), categoryCounter.get(word,0), referencesCounter.get(word,0),externCounter.get(word,0)
+            t,i,b,c,r,l = titleCounter.get(word,0),infoboxCounter.get(word,0), bodyCounter.get(word,0), categoryCounter.get(word,0), referencesCounter.get(word,0),externCounter.get(word,0)
             # if t+i+b+c+r+e == 1:
             #     del(invIndex[word])
             #     continue
@@ -60,8 +60,8 @@ class WikiHandler( xml.sax.ContentHandler ):
                 indString += f"c{c}"
             if(r):
                 indString += f"r{r}"
-            if(e):
-                indString += f"e{e}"    
+            if(l):
+                indString += f"l{e}"    
             else:
                 invIndex[word] = indString
         
@@ -91,6 +91,8 @@ class WikiHandler( xml.sax.ContentHandler ):
         if(text == ""):
             return []
         text = re.sub(r'&(lt|gt|amp|quot|apos|nbsp);',r' ', text)
+        # Replace isalnum() with isascii() and isalnum() to remove non-english letters
+        # text = ''.join(ch if ch.isalnum() and ch.isascii() else ' ' for ch in text)
         text = ''.join(ch if ch.isalnum() else ' ' for ch in text)
         tokenizedWords = []
         for word in text.split():
